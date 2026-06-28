@@ -1,7 +1,7 @@
 import { tera } from "./lib/terabox";
 import { isValidShareUrl, extractSurl, formatBytes } from "./lib/utils";
 
-const port = process.env.PORT || 5000;
+const port = 5000;
 
 const cache = new Map<string, { data: any; expiry: number }>();
 const CACHE_DURATION = 2 * 60 * 60 * 1000;
