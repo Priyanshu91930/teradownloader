@@ -11,3 +11,16 @@ services:
     ports:
       - "80:80"
       - "8080:8080"
+    environment:
+      - TERABOX_API_URL=http://terabox-api:5000/api
+    depends_on:
+      - terabox-api
+
+  terabox-api:
+    container_name: terabox-api
+    build:
+      context: ./terabox-api
+      dockerfile: dockerfile
+    restart: always
+    ports:
+      - "5000:5000"

@@ -170,11 +170,23 @@ async def handle_message(client: Client, message: Message):
         await message.reply_text("Please provide a valid Terabox link.")
         return
 
-    encoded_url = urllib.parse.quote(url)
-    final_url = f"https://teradlrobot.cheemsbackup.workers.dev/?url={encoded_url}"
-
-    download = aria2.add_uris([final_url])
     status_message = await message.reply_text("sᴇɴᴅɪɴɢ ʏᴏᴜ ᴛʜᴇ ᴍᴇᴅɪᴀ...🤤")
+
+    import requests
+    api_url = os.environ.get("TERABOX_API_URL", "http://localhost:5000/api")
+    try:
+        response = requests.get(f"{api_url}?url={url}")
+        res_data = response.json()
+        if res_data.get("status") == "success" and "download" in res_data:
+            direct_link = res_data["download"]
+        else:
+            await status_message.edit_text("ғᴀɪʟᴇᴅ ᴛᴏ ʙʏᴘᴀss ᴛᴇʀᴀʙᴏx ʟɪɴᴋ. ᴇʀʀᴏʀ: " + res_data.get("message", "unknown"))
+            return
+    except Exception as e:
+        await status_message.edit_text(f"ᴀᴘɪ ᴄᴏɴɴᴇᴄᴛɪᴏɴ ᴇʀʀᴏʀ: {e}")
+        return
+
+    download = aria2.add_uris([direct_link])
 
     start_time = datetime.now()
 
