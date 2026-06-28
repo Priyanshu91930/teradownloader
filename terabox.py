@@ -219,7 +219,17 @@ async def handle_message(client: Client, message: Message):
 
     while not download.is_complete:
         await asyncio.sleep(15)
-        download.update()
+        try:
+            download.update()
+        except Exception as e:
+            logger.error(f"Error updating download status: {e}")
+            await status_message.edit_text("❌ Download was removed or failed immediately in aria2c.")
+            return
+
+        if download.has_failed:
+            await status_message.edit_text("❌ Download failed in aria2c.")
+            return
+
         progress = download.progress
 
         elapsed_time = datetime.now() - start_time
