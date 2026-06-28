@@ -176,11 +176,16 @@ async def handle_message(client: Client, message: Message):
     api_url = os.environ.get("TERABOX_API_URL", "http://localhost:5000/api")
     try:
         response = requests.get(f"{api_url}?url={url}")
-        res_data = response.json()
+        try:
+            res_data = response.json()
+        except Exception:
+            await status_message.edit_text(f"ᴀᴘɪ ᴇʀʀᴏʀ (Status {response.status_code}): {response.text[:150]}")
+            return
+        
         if res_data.get("status") == "success" and "download" in res_data:
             direct_link = res_data["download"]
         else:
-            await status_message.edit_text("ғᴀɪʟᴇᴅ ᴛᴏ ʙʏᴘᴀss ᴛᴇʀᴀʙᴏx ʟɪɴᴋ. ᴇʀʀᴏʀ: " + res_data.get("message", "unknown"))
+            await status_message.edit_text("ғᴀɪʟᴇᴅ ᴛᴏ ʙʏᴘᴀss ᴛᴇʀᴀʙᴏx ʟɪɴᴋ. ᴇʀʀᴏʀ: " + res_data.get("message", res_data.get("error", "unknown")))
             return
     except Exception as e:
         await status_message.edit_text(f"ᴀᴘɪ ᴄᴏɴɴᴇᴄᴛɪᴏɴ ᴇʀʀᴏʀ: {e}")
