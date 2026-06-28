@@ -27,6 +27,28 @@ logging.getLogger("pyrogram.session").setLevel(logging.ERROR)
 logging.getLogger("pyrogram.connection").setLevel(logging.ERROR)
 logging.getLogger("pyrogram.dispatcher").setLevel(logging.ERROR)
 
+import subprocess
+import socket
+
+def is_port_open(host, port):
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.settimeout(1)
+        return s.connect_ex((host, port)) == 0
+
+if not is_port_open("localhost", 6800):
+    logging.info("Aria2c port 6800 is closed. Attempting to start aria2c daemon...")
+    try:
+        subprocess.Popen([
+            "aria2c",
+            "--enable-rpc",
+            "--rpc-listen-all=false",
+            "--rpc-allow-origin-all",
+            "--daemon"
+        ])
+        time.sleep(3)
+    except Exception as e:
+        logging.error(f"Failed to auto-start aria2c daemon: {e}. Please check if aria2 is installed on VPS.")
+
 aria2 = Aria2API(
     Aria2Client(
         host="http://localhost",
